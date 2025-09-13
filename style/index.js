@@ -3,7 +3,8 @@ const myData = document.getElementById("categoryItem");
 const AllNews = document.getElementById("newsContainer");
 const bookMarkContainer = document.getElementById("bookMarkContainer")
 const bookCount = document.getElementById("bookMarkCount")
-
+const myDataModal = document.getElementById("showModal");
+const newsModal = document.getElementById("my_modal");
 const catFunction = async () => {
     try {
         const res = await fetch("https://news-api-fs.vercel.app/api/categories")
@@ -40,6 +41,7 @@ const catFunction = async () => {
 
     } catch (error) {
         console.log(error);
+
     }
 }
 catFunction();
@@ -54,7 +56,8 @@ const NewsCategories = async (CatId) => {
         showNews(data.articles);
 
     } catch (error) {
-        console.log(error);
+        showError()
+        alert("something went wrong !")
 
 
     }
@@ -65,6 +68,12 @@ const NewsCategories = async (CatId) => {
 
 NewsCategories("main")
 const showNews = (news) => {
+    if (news.length === 0) {
+        showEmpty()
+        alert("no data here ?")
+        return
+
+    }
 
     AllNews.innerHTML = ""
 
@@ -76,8 +85,9 @@ const showNews = (news) => {
         <div><img src="${news.image.srcset[0].url}" alt="" /></div>
 
         <div id="${news.id}"><h1 class="">${news.title}</h1>
-        <time >${news.time}</time>
-        <button class="btn">BookMark</button>
+        <time >${news.time}</time><br>
+        <button class="btn btn-xs">BookMark</button>
+        <button class="btn btn-xs">view details</button>
         </div>
 
         </div>
@@ -95,10 +105,9 @@ AllNews.addEventListener("click", (e) => {
     if (e.target.innerText === "BookMark") {
         handelBookMark(e)
 
-
-
-
-
+    }
+    if (e.target.innerText === "view details") {
+        handelModal(e)
 
     }
 
@@ -148,4 +157,35 @@ const showLoading = () => {
     </div>
 
     `
+}
+const showError = () => {
+
+    AllNews.innerHTML = `
+    <div class="bg-red-700 p-4 text-black"><h1>something went wrong</h1></div>
+    `
+}
+const showEmpty = () => {
+    AllNews.innerHTML = `
+    <div class="bg-red-700 p-4 text-black"><h1>No data found here !</h1></div>
+    `
+}
+handelModal = (e) => {
+    const data = e.target.parentNode.id
+    fetch(`https://news-api-fs.vercel.app/api/news/${data}`)
+        .then(res => res.json())
+        .then(data => {
+            showDataAll(data.article);
+
+    })
+
+}
+const showDataAll = (details) => {
+    newsModal.showModal()
+    myDataModal.innerHTML=""
+    myDataModal.innerHTML += `
+    <div class="bg-black text-white p-2 rounded-xl">${details.content}</div>
+
+    `
+
+
 }
